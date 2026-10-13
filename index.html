@@ -3,47 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حلبسة - نظام البلاغات ولوحة الإدارة</title>
-    <!-- Tailwind CSS -->
+    <title>حلبسة - تقديم بلاغ أو شكوى</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        darkBlue: '#0F172A',
-                        royalBlue: '#1E3A8A',
-                        skyBlue: '#0284C7',
-                        lightBg: '#F8FAFC',
-                    },
-                    fontFamily: {
-                        cairo: ['Cairo', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Google Fonts: Cairo -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body { font-family: 'Cairo', sans-serif; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-lightBg text-slate-800 min-h-screen flex flex-col">
-    <div id="root"></div>
+<body class="min-h-screen flex flex-col bg-slate-50">
 
-    <!-- Firebase SDKs & App Script -->
+    <!-- شريط التنقل العلوي Navbar -->
+    <nav class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="bg-cyan-500 text-slate-950 p-2.5 rounded-xl font-bold text-lg shadow-inner">📍</div>
+                <span class="text-xl font-black tracking-wider text-white">حلبسة <span class="text-cyan-400 font-normal text-sm">Halbasa</span></span>
+            </div>
+            <div class="hidden md:flex items-center gap-8 text-sm font-semibold">
+                <a href="/" class="text-cyan-400 hover:text-white transition-colors">الرئيسية</a>
+                <a href="#about" class="text-slate-300 hover:text-cyan-400 transition-colors">عن حلبسة</a>
+                <a href="#services" class="text-slate-300 hover:text-cyan-400 transition-colors">الخدمات</a>
+                <a href="/login" class="text-slate-300 hover:text-cyan-400 transition-colors">تواصل معنا ✉️</a>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="/admin" class="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded-xl text-xs font-bold transition-all">لوحة الإدارة</a>
+                <a href="#report-form" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/20 transition-all">تقديم بلاغ</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- القسم التعريفي (Hero Section) -->
+    <section class="futuristic-gradient text-white py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+            <div class="space-y-6">
+                <span class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-3 py-1 rounded-full text-xs font-bold">منصة الشكاوى الذكية</span>
+                <h1 class="text-4xl sm:text-5xl font-black leading-tight">ما مشكلتك أو بلاغك؟</h1>
+                <p class="text-slate-300 text-base leading-relaxed">ساعدنا في تحسين خدماتنا عن طريق الإبلاغ عن أي مشكلة تواجهك في موقع حلبسة، وسنقوم بالرد ومتابعة البلاغ في أسرع وقت.</p>
+            </div>
+            <div class="flex justify-center">
+                <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-2xl text-center w-full max-w-md">
+                    <div class="text-6xl mb-4 animate-bounce">🏙️</div>
+                    <h3 class="text-xl font-bold text-cyan-300 mb-2">خدمة دعم مستمرة 24/7</h3>
+                    <p class="text-slate-300 text-xs">تخزين آمن ومعالجة فورية للبلاغات عبر السحابة الذكية.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- نموذج تقديم البلاغ -->
+    <main class="max-w-4xl mx-auto px-4 py-12 flex-1 w-full" id="report-form">
+        <div class="glass-card rounded-3xl p-6 sm:p-10 shadow-xl border border-slate-200">
+            <div class="mb-8 border-b pb-4">
+                هيكل نموذج البلاغ الاحترافي
+                <h2 class="text-2xl font-black text-slate-800">نموذج تسجيل الشكاوى والبلاغات</h2>
+                <p class="text-slate-500 text-xs mt-1">يرجى تعبئة الحقول المطلوبة بدقة أدناه</p>
+            </div>
+
+            <div id="alertBox" class="hidden p-4 rounded-xl mb-6 text-sm font-semibold"></div>
+
+            <form id="submissionForm" class="space-y-6">
+                <!-- أولاً: بيانات المرسل -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-blue-900 border-r-4 border-blue-600 pr-3">أولًا: بيانات المرسل</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">الاسم الكامل <span class="text-red-500">*</span></label>
+                            <input type="text" id="fullName" required class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-600 transition-colors" placeholder="ادخل اسمك الكامل">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">رقم الهاتف</label>
+                            <input type="tel" id="phone" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-600 transition-colors" placeholder="01xxxxxxxx0">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">البريد الإلكتروني</label>
+                            <input type="email" id="email" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-blue-600 transition-colors" placeholder="name@example.com">
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 text-blue-700 p-3 rounded-xl text-xs flex items-center gap-2">
+                        <span>ℹ️</span> ملاحظة: يجب إدخال رقم الهاتف أو البريد الإلكتروني على الأقل.
+                    </div>
+                </div>
+
+                <!-- ثانيًا: تفاصيل المشكلة -->
+                <div class="space-y-4 pt-4 border-t">
+                    <h3 class="text-lg font-bold text-blue-900 border-r-4 border-blue-600 pr-3">ثانيًا: تفاصيل المشكلة / البلاغ <span class="text-red-500">*</span></h3>
+                    <div>
+                        <textarea id="description" required rows="4" maxlength="1000" oninput="updateCharCount(this)" class="w-full bg-white border border-slate-300 rounded-xl p-4 text-sm focus:outline-none focus:border-blue-600 transition-colors" placeholder="اكتب تفاصيل المشكلة أو البلاغ بدقة..."></textarea>
+                        <div class="flex justify-between items-center text-xs text-slate-400 mt-1">
+                            <span>حد أقصى 1000 حرف</span>
+                            <span id="charCount">0 / 1000</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ثالثًا ورابعًا: الصور (اختياري) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+                    <!-- صورة المستخدم -->
+                    <div class="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center hover:border-blue-500 transition-all bg-slate-50/50">
+                        <label class="cursor-pointer block">
+                            <span class="text-3xl block mb-2">👤</span>
+                            <span class="block text-xs font-bold text-slate-700 mb-1">صورة المستخدم (اختياري)</span>
+                            <span class="text-[11px] text-slate-400 block mb-3">اختر صورة شخصية لتسهيل التواصل</span>
+                            <input type="file" id="userImageFile" accept="image/*" class="hidden" onchange="previewImage(this, 'userPreview')">
+                            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-blue-700 transition-colors">اختر صورة</span>
+                        </label>
+                        <div id="userPreview" class="mt-3 hidden">
+                            <img src="" class="h-20 mx-auto rounded-lg border object-cover">
+                        </div>
+                    </div>
+
+                    <!-- صورة المشكلة -->
+                    <div class="border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center hover:border-blue-500 transition-all bg-slate-50/50">
+                        <label class="cursor-pointer block">
+                            <span class="text-3xl block mb-2">🖼️</span>
+                            <span class="block text-xs font-bold text-slate-700 mb-1">صورة المشكلة (اختياري)</span>
+                            <span class="text-[11px] text-slate-400 block mb-3">ارفع صورة توضح مكان أو شكل المشكلة</span>
+                            <input type="file" id="issueImageFile" accept="image/*" class="hidden" onchange="previewImage(this, 'issuePreview')">
+                            <span class="inline-block bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-blue-700 transition-colors">اختر صورة</span>
+                        </label>
+                        <div id="issuePreview" class="mt-3 hidden">
+                            <img src="" class="h-20 mx-auto rounded-lg border object-cover">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- زر الإرسال -->
+                <div class="pt-6 text-center">
+                    <button type="submit" id="submitBtn" class="bg-gradient-to-r from-blue-600 to-cyan-500 hover:opacity-90 text-white font-bold px-10 py-4 rounded-2xl shadow-xl shadow-blue-500/25 flex items-center justify-center gap-2 mx-auto text-base transition-all w-full md:w-auto min-w-[220px]">
+                        <span>إرسال البلاغ</span>
+                        <span>✈️</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- التذييل Footer -->
+    <footer class="bg-slate-900 text-white py-8 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-4">
+            <div class="flex justify-center items-center gap-2">
+                <div class="bg-cyan-500 text-slate-950 p-1.5 rounded-lg text-sm font-bold">📍</div>
+                <span class="font-bold text-lg">حلبسة Halbasa</span>
+            </div>
+            <p class="text-xs text-slate-400">جميع الحقوق محفوظة © حلبسة 2026</p>
+        </div>
+    </footer>
+
+    <!-- سكربت التعامل مع الإرسال و Firebase -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCk9l8XNO4y-6qnaOqKsfAKQPbaemOOHrU",
@@ -58,745 +165,100 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
 
-        window.firebaseServices = { db, auth, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, signInWithEmailAndPassword, signOut, onAuthStateChanged };
-    </script>
-
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-
-        function App() {
-            const [currentRoute, setCurrentRoute] = useState(window.location.pathname);
-            const [user, setUser] = useState(null);
-            const [authLoading, setAuthLoading] = useState(true);
-
-            useEffect(() => {
-                const handlePopState = () => setCurrentRoute(window.location.pathname);
-                window.addEventListener('popstate', handlePopState);
-
-                // Check Firebase Auth if available
-                const checkAuthInterval = setInterval(() => {
-                    if (window.firebaseServices) {
-                        clearInterval(checkAuthInterval);
-                        window.firebaseServices.onAuthStateChanged(window.firebaseServices.auth, (currentUser) => {
-                            setUser(currentUser);
-                            setAuthLoading(false);
-                        });
-                    }
-                }, 100);
-
-                return () => window.removeEventListener('popstate', handlePopState);
-            }, []);
-
-            const navigate = (path) => {
-                window.history.pushState({}, '', path);
-                setCurrentRoute(path);
-                window.scrollTo(0, 0);
-            };
-
-            // Router simulation
-            if (currentRoute === '/admin' || currentRoute === '/admin.html') {
-                return <AdminDashboard user={user} authLoading={authLoading} navigate={navigate} />;
-            }
-            if (currentRoute === '/login' || currentRoute === '/login.html') {
-                return <AdminLogin navigate={navigate} />;
-            }
-            return <PublicReportPortal navigate={navigate} />;
+        window.updateCharCount = function(el) {
+            document.getElementById('charCount').innerText = `${el.value.length} / 1000`;
         }
 
-        // --- NAVBAR COMPONENT ---
-        function Navbar({ navigate }) {
-            return (
-                <header className="bg-darkBlue text-white shadow-md sticky top-0 z-50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-                        <div className="flex items-center space-x-3 space-x-reverse cursor-pointer" onClick={() => navigate('/')}>
-                            <div className="bg-skyBlue p-2 rounded-xl text-white shadow-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                            </div>
-                            <div>
-                                <span className="text-xl font-black tracking-wider">حلبسة</span>
-                                <span className="text-xs block text-sky-400">Halbasa Platform</span>
-                            </div>
-                        </div>
-                        <nav className="hidden md:flex items-center space-x-8 space-x-reverse font-medium">
-                            <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="hover:text-sky-400 transition">الرئيسية</a>
-                            <a href="#about" onClick={(e) => { e.preventDefault(); alert('موقع حلبسة الرقمي للخدمات والبلاغات المستقبلية.'); }} className="hover:text-sky-400 transition">عن حلبسة</a>
-                            <a href="#services" onClick={(e) => { e.preventDefault(); alert('نقدم خدمات بلاغات ذكية متطورة.'); }} className="hover:text-sky-400 transition">الخدمات</a>
-                            <a href="/admin" onClick={(e) => { e.preventDefault(); navigate('/admin'); }} className="text-sky-300 hover:text-white transition flex items-center gap-1">
-                                لوحة الإدارة
-                            </a>
-                        </nav>
-                        <div className="flex items-center gap-4">
-                            <a href="mailto:support@halbasa.com" className="hidden lg:flex items-center gap-2 text-sm text-slate-300 hover:text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                tawasol@halbasa.com
-                            </a>
-                            <button onClick={() => navigate('/reports')} className="bg-gradient-to-r from-skyBlue to-royalBlue hover:from-sky-500 hover:to-blue-700 text-white px-5 py-2.5 rounded-xl font-bold shadow-lg transition transform hover:-translate-y-0.5">
-                                تقديم بلاغ
-                            </button>
-                        </div>
-                    </div>
-                </header>
-            );
-        }
-
-        // --- FOOTER COMPONENT ---
-        function Footer() {
-            return (
-                <footer className="bg-darkBlue text-white py-12 mt-auto border-t border-slate-800">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center space-x-3 space-x-reverse">
-                            <div className="bg-skyBlue p-2 rounded-xl text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-                            </div>
-                            <span className="text-lg font-bold">حلبسة Halbasa</span>
-                        </div>
-                        <div className="flex gap-6 text-slate-400 text-sm">
-                            <a href="#" className="hover:text-sky-400 transition">سياسة الخصوصية</a>
-                            <a href="#" className="hover:text-sky-400 transition">الشروط والأحكام</a>
-                            <a href="/admin" className="hover:text-sky-400 transition">بوابة المسؤولين</a>
-                        </div>
-                        <p className="text-sm text-slate-400">جميع الحقوق محفوظة © حلبسة 2026</p>
-                    </div>
-                </footer>
-            );
-        }
-
-        // --- PUBLIC REPORT PORTAL ---
-        function PublicReportPortal({ navigate }) {
-            const [formData, setFormData] = useState({
-                name: '',
-                phone: '',
-                email: '',
-                description: '',
-                userImage: null,
-                issueImage: null
-            });
-            const [userImagePreview, setUserImagePreview] = useState(null);
-            const [issueImagePreview, setIssueImagePreview] = useState(null);
-            const [errorMsg, setErrorMsg] = useState('');
-            const [successMsg, setSuccessMsg] = useState('');
-            const [isSubmitting, setIsSubmitting] = useState(false);
-
-            const handleInputChange = (e) => {
-                const { name, value } = e.target;
-                setFormData(prev => ({ ...prev, [name]: value }));
-                setErrorMsg('');
-            };
-
-            const handleImageProcess = (e, type) => {
-                const file = e.target.files[0];
-                if (!file) return;
-
-                if (file.size > 2 * 1024 * 1024) {
-                    setErrorMsg('حجم الصورة كبير جداً. الحد الأقصى هو 2 ميجابايت.');
-                    return;
-                }
-
+        window.previewImage = function(input, previewId) {
+            const previewContainer = document.getElementById(previewId);
+            const img = previewContainer.querySelector('img');
+            if (input.files && input.files[0]) {
                 const reader = new FileReader();
-                reader.onloadend = () => {
-                    if (type === 'user') {
-                        setFormData(prev => ({ ...prev, userImage: reader.result }));
-                        setUserImagePreview(reader.result);
-                    } else {
-                        setFormData(prev => ({ ...prev, issueImage: reader.result }));
-                        setIssueImagePreview(reader.result);
-                    }
-                };
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // تحويل الصورة إلى Base64
+        const convertToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
                 reader.readAsDataURL(file);
-            };
+                reader.onload = () => resolve(reader.result);
+                reader.error = error => reject(error);
+            });
+        };
 
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                setErrorMsg('');
-                setSuccessMsg('');
+        const form = document.getElementById('submissionForm');
+        const alertBox = document.getElementById('alertBox');
+        const submitBtn = document.getElementById('submitBtn');
 
-                // Validation
-                if (!formData.name.trim()) {
-                    setErrorMsg('الرجاء إدخال الاسم الكامل.');
-                    return;
-                }
-                if (!formData.phone.trim() && !formData.email.trim()) {
-                    setErrorMsg('يجب إدخال رقم الهاتف أو البريد الإلكتروني على الأقل.');
-                    return;
-                }
-                if (!formData.description.trim()) {
-                    setErrorMsg('الرجاء كتابة تفاصيل المشكلة أو البلاغ.');
-                    return;
-                }
-                if (formData.description.length > 1000) {
-                    setErrorMsg('تفاصيل البلاغ تتجاوز الحد الأقصى (1000 حرف).');
-                    return;
-                }
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            alertBox.classList.add('hidden');
 
-                setIsSubmitting(true);
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const userFile = document.getElementById('userImageFile').files[0];
+            const issueFile = document.getElementById('issueImageFile').files[0];
 
-                try {
-                    if (!window.firebaseServices) {
-                        throw new Error("خدمات Firebase غير متوفرة حالياً.");
-                    }
-                    const { db, collection, addDoc, serverTimestamp } = window.firebaseServices;
-                    
-                    await addDoc(collection(db, "reports"), {
-                        name: formData.name.trim(),
-                        phone: formData.phone.trim() || null,
-                        email: formData.email.trim() || null,
-                        description: formData.description.trim(),
-                        userImage: formData.userImage || null,
-                        issueImage: formData.issueImage || null,
-                        status: "new",
-                        createdAt: serverTimestamp()
-                    });
-
-                    setSuccessMsg('تم إرسال البلاغ بنجاح! شكرًا لمساهمتك في تحسين خدمات حلبسة.');
-                    setFormData({ name: '', phone: '', email: '', description: '', userImage: null, issueImage: null });
-                    setUserImagePreview(null);
-                    setIssueImagePreview(null);
-                } catch (err) {
-                    console.error("Firebase Error:", err);
-                    setErrorMsg('حدث خطأ أثناء حفظ البلاغ. الرجاء المحاولة مرة أخرى.');
-                } finally {
-                    setIsSubmitting(false);
-                }
-            };
-
-            return (
-                <div className="flex flex-col min-h-screen">
-                    <Navbar navigate={navigate} />
-
-                    {/* Hero Section */}
-                    <section className="bg-gradient-to-br from-blue-900 via-royalBlue to-darkBlue text-white py-16 px-4 relative overflow-hidden">
-                        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#0284C7_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
-                            <div>
-                                <span className="bg-sky-500/20 text-sky-300 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider border border-sky-400/30">نظام البلاغات الذكي</span>
-                                <h1 className="text-4xl sm:text-5xl font-black mt-4 mb-6 leading-tight">ما مشكلتك أو بلاغك؟</h1>
-                                <p className="text-slate-300 text-lg leading-relaxed mb-8">ساعدنا في تحسين خدماتنا عن طريق الإبلاغ عن أي مشكلة تواجهك في موقع حلبسة، وسنقوم بمراجعتها وحلها فوراً بأعلى كفاءة.</p>
-                                <div className="flex items-center gap-4 text-sm text-sky-200">
-                                    <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> استجابة سريعة</div>
-                                    <div className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-sky-400"></span> متابعة مستمرة</div>
-                                </div>
-                            </div>
-                            <div className="hidden md:flex justify-center">
-                                <div className="bg-white/10 backdrop-blur-md p-8 rounded-3xl border border-white/20 shadow-2xl text-center max-w-sm">
-                                    <div className="bg-sky-500/30 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-sky-300 border border-sky-400/40">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                                    </div>
-                                    <h3 className="text-xl font-bold mb-2">حلبسة المستقبل</h3>
-                                    <p className="text-xs text-slate-300">منظومة رقمية متكاملة لخدمة العملاء واستقبال البلاغات بمرونة تامة.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Report Form Section */}
-                    <main className="flex-grow max-w-4xl w-full mx-auto px-4 py-12 -mt-10 relative z-20">
-                        <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 sm:p-12">
-                            {errorMsg && (
-                                <div className="mb-6 bg-red-50 border-r-4 border-red-500 text-red-700 p-4 rounded-xl text-sm font-medium flex items-center justify-between">
-                                    <span>{errorMsg}</span>
-                                    <button onClick={() => setErrorMsg('')} className="text-red-500 font-bold">&times;</button>
-                                </div>
-                            )}
-
-                            {successMsg && (
-                                <div className="mb-6 bg-emerald-50 border-r-4 border-emerald-500 text-emerald-700 p-6 rounded-xl text-center font-bold text-lg">
-                                    {successMsg}
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit} className="space-y-8">
-                                {/* Sender Info */}
-                                <div>
-                                    <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                        <span className="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-black">1</span>
-                                        بيانات المرسل
-                                    </h3>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">الاسم الكامل <span className="text-red-500">*</span></label>
-                                            <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="ادخل اسمك الكامل" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm" />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm font-bold text-slate-700 mb-2">رقم الهاتف</label>
-                                            <input type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="010xxxxxxxx" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm" dir="ltr" />
-                                        </div>
-                                    </div>
-                                    <div className="mt-4">
-                                        <label className="block text-sm font-bold text-slate-700 mb-2">البريد الإلكتروني</label>
-                                        <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="example@domain.com" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm" dir="ltr" />
-                                    </div>
-                                    <p className="mt-2 text-xs text-sky-600 font-medium bg-sky-50 p-3 rounded-xl border border-sky-100">
-                                        ℹ️ يجب إدخال رقم الهاتف أو البريد الإلكتروني على الأقل.
-                                    </p>
-                                </div>
-
-                                <hr className="border-slate-100" />
-
-                                {/* Issue Details */}
-                                <div>
-                                    <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                                        <span className="w-8 h-8 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center text-sm font-black">2</span>
-                                        تفاصيل المشكلة <span className="text-red-500">*</span>
-                                    </h3>
-                                    <div>
-                                        <textarea name="description" value={formData.description} onChange={handleInputChange} rows="5" maxLength="1000" placeholder="اكتب تفاصيل المشكلة أو البلاغ..." className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"></textarea>
-                                        <div className="flex justify-between items-center mt-2 text-xs text-slate-400">
-                                            <span>صف المشكلة بدقة لتسهيل سرعة حلها.</span>
-                                            <span className={formData.description.length > 950 ? 'text-red-500 font-bold' : ''}>{formData.description.length} / 1000 حرف</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <hr className="border-slate-100" />
-
-                                {/* Images Upload */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                    {/* User Image */}
-                                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-sky-400 transition bg-slate-50/50">
-                                        <div className="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-3 text-sky-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                        </div>
-                                        <h4 className="font-bold text-sm text-slate-800 mb-1">صورة المستخدم (اختياري)</h4>
-                                        <p className="text-xs text-slate-400 mb-4">صورة شخصية لتسهيل التواصل</p>
-                                        {userImagePreview ? (
-                                            <div className="mb-4 relative w-20 h-20 mx-auto">
-                                                <img src={userImagePreview} alt="معاينة" className="w-full h-full object-cover rounded-xl border" />
-                                                <button type="button" onClick={() => { setUserImagePreview(null); setFormData(prev => ({...prev, userImage: null})); }} className="absolute -top-2 -left-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs">&times;</button>
-                                            </div>
-                                        ) : (
-                                            <label className="cursor-pointer bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition inline-block">
-                                                اختر صورة
-                                                <input type="file" accept="image/*" onChange={(e) => handleImageProcess(e, 'user')} className="hidden" />
-                                            </label>
-                                        )}
-                                    </div>
-
-                                    {/* Issue Image */}
-                                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-sky-400 transition bg-slate-50/50">
-                                        <div className="w-12 h-12 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-3 text-sky-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                        </div>
-                                        <h4 className="font-bold text-sm text-slate-800 mb-1">صورة المشكلة (اختياري)</h4>
-                                        <p className="text-xs text-slate-400 mb-4">صورة توضيحية لمركز المشكلة</p>
-                                        {issueImagePreview ? (
-                                            <div className="mb-4 relative w-20 h-20 mx-auto">
-                                                <img src={issueImagePreview} alt="معاينة" className="w-full h-full object-cover rounded-xl border" />
-                                                <button type="button" onClick={() => { setIssueImagePreview(null); setFormData(prev => ({...prev, issueImage: null})); }} className="absolute -top-2 -left-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs">&times;</button>
-                                            </div>
-                                        ) : (
-                                            <label className="cursor-pointer bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition inline-block">
-                                                اختر صورة
-                                                <input type="file" accept="image/*" onChange={(e) => handleImageProcess(e, 'issue')} className="hidden" />
-                                            </label>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Submit Button */}
-                                <div className="text-center pt-4">
-                                    <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-royalBlue to-skyBlue hover:from-blue-900 hover:to-sky-600 text-white font-bold rounded-2xl shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center gap-3 mx-auto disabled:opacity-50">
-                                        {isSubmitting ? (
-                                            <span>جاري الإرسال والمعالجة...</span>
-                                        ) : (
-                                            <>
-                                                <span>إرسال البلاغ</span>
-                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform rotate-45" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </main>
-
-                    <Footer />
-                </div>
-            );
-        }
-
-        // --- ADMIN LOGIN ---
-        function AdminLogin({ navigate }) {
-            const [email, setEmail] = useState('');
-            const [password, setPassword] = useState('');
-            const [error, setError] = useState('');
-            const [loading, setLoading] = useState(false);
-
-            const handleLogin = async (e) => {
-                e.preventDefault();
-                setError('');
-                setLoading(true);
-
-                try {
-                    const { auth, signInWithEmailAndPassword } = window.firebaseServices;
-                    await signInWithEmailAndPassword(auth, email, password);
-                    navigate('/admin');
-                } catch (err) {
-                    console.error(err);
-                    setError('فشل تسجيل الدخول. تأكد من البريد الإلكتروني وكلمة المرور.');
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            return (
-                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8 sm:p-10">
-                        <div className="text-center mb-8">
-                            <div className="bg-sky-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                            </div>
-                            <h2 className="text-2xl font-black text-slate-800">بوابة المسؤولين</h2>
-                            <p className="text-xs text-slate-500 mt-1">تسجيل الدخول للوحة تحكم حلبسة</p>
-                        </div>
-
-                        {error && (
-                            <div className="mb-6 bg-red-50 border-r-4 border-red-500 text-red-700 p-4 rounded-xl text-xs font-medium">
-                                {error}
-                            </div>
-                        )}
-
-                        <form onSubmit={handleLogin} className="space-y-6">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2">البريد الإلكتروني للإدارة</label>
-                                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="admin@halbasa.com" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm" dir="ltr" />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2">كلمة المرور</label>
-                                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm" dir="ltr" />
-                            </div>
-                            <button type="submit" disabled={loading} className="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-xl shadow-lg transition">
-                                {loading ? 'جاري التحقق...' : 'دخول اللوحة'}
-                            </button>
-                        </form>
-                        <div className="mt-6 text-center">
-                            <button onClick={() => navigate('/')} className="text-xs text-slate-400 hover:text-sky-600 transition">
-                                العودة إلى الموقع الرئيسي
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        // --- ADMIN DASHBOARD ---
-        function AdminDashboard({ user, authLoading, navigate }) {
-            const [reports, setReports] = useState([]);
-            const [loadingReports, setLoadingReports] = useState(true);
-            const [filterStatus, setFilterStatus] = useState('all');
-            const [searchTerm, setSearchTerm] = useState('');
-            const [selectedReport, setSelectedReport] = useState(null);
-            const [activeTab, setActiveTab] = useState('overview');
-
-            useEffect(() => {
-                if (!authLoading && !user) {
-                    navigate('/login');
-                }
-            }, [user, authLoading]);
-
-            useEffect(() => {
-                if (user) {
-                    fetchReports();
-                }
-            }, [user]);
-
-            const fetchReports = async () => {
-                setLoadingReports(true);
-                try {
-                    const { db, collection, getDocs, query, orderBy } = window.firebaseServices;
-                    const q = query(collection(db, "reports"), orderBy("createdAt", "desc"));
-                    const querySnapshot = await getDocs(q);
-                    const list = [];
-                    querySnapshot.forEach((docSnap) => {
-                        list.push({ id: docSnap.id, ...docSnap.data() });
-                    });
-                    setReports(list);
-                } catch (err) {
-                    console.error("Error fetching reports:", err);
-                } finally {
-                    setLoadingReports(false);
-                }
-            };
-
-            const updateStatus = async (reportId, newStatus) => {
-                try {
-                    const { db, doc, updateDoc } = window.firebaseServices;
-                    await updateDoc(doc(db, "reports", reportId), { status: newStatus });
-                    setReports(prev => prev.map(r => r.id === reportId ? { ...r, status: newStatus } : r));
-                    if (selectedReport && selectedReport.id === reportId) {
-                        setSelectedReport(prev => ({ ...prev, status: newStatus }));
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('فشل تحديث حالة البلاغ.');
-                }
-            };
-
-            const deleteReport = async (reportId) => {
-                if (!confirm("هل أنت متأكد من حذف هذا البلاغ نهائياً؟")) return;
-                try {
-                    const { db, doc, deleteDoc } = window.firebaseServices;
-                    await deleteDoc(doc(db, "reports", reportId));
-                    setReports(prev => prev.filter(r => r.id !== reportId));
-                    setSelectedReport(null);
-                } catch (err) {
-                    console.error(err);
-                    alert('فشل حذف البلاغ.');
-                }
-            };
-
-            const handleLogout = async () => {
-                const { auth, signOut } = window.firebaseServices;
-                await signOut(auth);
-                navigate('/login');
-            };
-
-            if (authLoading || !user) {
-                return (
-                    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-                        <div className="text-center">
-                            <div className="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                            <p className="text-slate-600 font-bold">جاري تحميل لوحة الإدارة...</p>
-                        </div>
-                    </div>
-                );
+            // التحقق من الهاتف أو البريد
+            if (!phone && !email) {
+                showAlert('يجب إدخال رقم الهاتف أو البريد الإلكتروني على الأقل.', 'error');
+                return;
             }
 
-            const stats = {
-                total: reports.length,
-                new: reports.filter(r => r.status === 'new').length,
-                inProgress: reports.filter(r => r.status === 'in_progress').length,
-                resolved: reports.filter(r => r.status === 'resolved').length,
-                rejected: reports.filter(r => r.status === 'rejected').length,
-            };
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>جاري الإرسال...</span>';
 
-            const filteredReports = reports.filter(r => {
-                const matchesStatus = filterStatus === 'all' || r.status === filterStatus;
-                const matchesSearch = r.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                                      r.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                      (r.phone && r.phone.includes(searchTerm)) ||
-                                      (r.email && r.email.toLowerCase().includes(searchTerm.toLowerCase()));
-                return matchesStatus && matchesSearch;
-            });
+            try {
+                let userImageBase64 = null;
+                let issueImageBase64 = null;
 
-            return (
-                <div className="min-h-screen bg-slate-100 flex">
-                    {/* Sidebar */}
-                    <aside className="w-64 bg-darkBlue text-white flex-shrink-0 hidden lg:flex flex-col">
-                        <div className="p-6 border-b border-slate-800 flex items-center space-x-3 space-x-reverse cursor-pointer" onClick={() => navigate('/')}>
-                            <div className="bg-sky-500 p-2 rounded-xl text-white">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
-                            </div>
-                            <div>
-                                <h1 className="font-bold text-lg">حلبسة Admin</h1>
-                                <span className="text-xs text-sky-400">لوحة التحكم</span>
-                            </div>
-                        </div>
+                if (userFile) {
+                    userImageBase64 = await convertToBase64(userFile);
+                }
+                if (issueFile) {
+                    issueImageBase64 = await convertToBase64(issueFile);
+                }
 
-                        <nav className="p-4 space-y-1 flex-grow">
-                            <button onClick={() => { setActiveTab('overview'); setFilterStatus('all'); }} className={`w-full text-right px-4 py-3 rounded-xl text-sm font-medium transition flex items-center gap-3 ${activeTab === 'overview' && filterStatus === 'all' ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
-                                <span>📊</span> الرئيسية
-                            </button>
-                            <button onClick={() => { setActiveTab('reports'); setFilterStatus('all'); }} className={`w-full text-right px-4 py-3 rounded-xl text-sm font-medium transition flex items-center gap-3 ${filterStatus === 'all' && activeTab === 'reports' ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
-                                <span>📋</span> جميع البلاغات
-                            </button>
-                            <button onClick={() => { setActiveTab('reports'); setFilterStatus('new'); }} className={`w-full text-right px-4 py-3 rounded-xl text-sm font-medium transition flex items-center gap-3 ${filterStatus === 'new' ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
-                                <span>🔔</span> البلاغات الجديدة ({stats.new})
-                            </button>
-                            <button onClick={() => { setActiveTab('reports'); setFilterStatus('in_progress'); }} className={`w-full text-right px-4 py-3 rounded-xl text-sm font-medium transition flex items-center gap-3 ${filterStatus === 'in_progress' ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
-                                <span>⏳</span> قيد المراجعة ({stats.inProgress})
-                            </button>
-                            <button onClick={() => { setActiveTab('reports'); setFilterStatus('resolved'); }} className={`w-full text-right px-4 py-3 rounded-xl text-sm font-medium transition flex items-center gap-3 ${filterStatus === 'resolved' ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
-                                <span>✅</span> تم الحل ({stats.resolved})
-                            </button>
-                            <button onClick={() => { setActiveTab('reports'); setFilterStatus('rejected'); }} className={`w-full text-right px-4 py-3 rounded-xl text-sm font-medium transition flex items-center gap-3 ${filterStatus === 'rejected' ? 'bg-sky-600 text-white' : 'text-slate-300 hover:bg-slate-800'}`}>
-                                <span>❌</span> البلاغات المرفوضة ({stats.rejected})
-                            </button>
-                        </nav>
+                await addDoc(collection(db, "reports"), {
+                    name,
+                    phone: phone || null,
+                    email: email || null,
+                    description,
+                    userImage: userImageBase64,
+                    issueImage: issueImageBase64,
+                    status: "new",
+                    createdAt: serverTimestamp()
+                });
 
-                        <div className="p-4 border-t border-slate-800">
-                            <button onClick={handleLogout} className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 py-3 rounded-xl text-sm font-bold transition flex items-center justify-center gap-2">
-                                تسجيل الخروج
-                            </button>
-                        </div>
-                    </aside>
+                showAlert('تم إرسال البلاغ بنجاح! شكراً لمساعدتنا في تحسين حلبسة.', 'success');
+                form.reset();
+                document.getElementById('userPreview').classList.add('hidden');
+                document.getElementById('issuePreview').classList.add('hidden');
+                document.getElementById('charCount').innerText = '0 / 1000';
+            } catch (error) {
+                console.error(error);
+                showAlert('حدث خطأ أثناء إرسال البلاغ. يجدر التأكد من الاتصال بالإنترنت.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>إرسال البلاغ</span><span>✈️</span>';
+            }
+        });
 
-                    {/* Main Content Area */}
-                    <div className="flex-grow flex flex-col min-w-0">
-                        {/* Topbar */}
-                        <header className="bg-white h-20 shadow-sm px-6 flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <span className="font-bold text-lg text-slate-800 lg:hidden">حلبسة Admin</span>
-                                <div className="relative">
-                                    <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="بحث بالاسم، رقم البلاغ، الهاتف..." className="bg-slate-100 px-4 py-2 rounded-xl text-sm w-64 md:w-80 focus:outline-none focus:ring-2 focus:ring-sky-500" />
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <span className="text-xs text-slate-500 hidden sm:inline">{user.email}</span>
-                                <button onClick={() => navigate('/')} className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-xl font-bold transition">
-                                    زيارة الموقع
-                                </button>
-                            </div>
-                        </header>
-
-                        {/* Content */}
-                        <main className="p-6 md:p-8 flex-grow">
-                            {/* Stats Cards */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                    <p className="text-xs text-slate-400 mb-1 font-bold">إجمالي البلاغات</p>
-                                    <h3 className="text-2xl font-black text-slate-800">{stats.total}</h3>
-                                </div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                    <p className="text-xs text-amber-500 mb-1 font-bold">البلاغات الجديدة</p>
-                                    <h3 className="text-2xl font-black text-slate-800">{stats.new}</h3>
-                                </div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                    <p className="text-xs text-sky-500 mb-1 font-bold">قيد المراجعة</p>
-                                    <h3 className="text-2xl font-black text-slate-800">{stats.inProgress}</h3>
-                                </div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                    <p className="text-xs text-emerald-500 mb-1 font-bold">تم الحل</p>
-                                    <h3 className="text-2xl font-black text-slate-800">{stats.resolved}</h3>
-                                </div>
-                                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                    <p className="text-xs text-red-500 mb-1 font-bold">المرفوضة</p>
-                                    <h3 className="text-2xl font-black text-slate-800">{stats.rejected}</h3>
-                                </div>
-                            </div>
-
-                            {/* Reports Table Section */}
-                            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                                    <h3 className="font-bold text-slate-800">قائمة البلاغات الواردة</h3>
-                                    <button onClick={fetchReports} className="text-xs text-sky-600 hover:text-sky-700 font-bold">تحديث البيانات 🔄</button>
-                                </div>
-
-                                {loadingReports ? (
-                                    <div className="p-12 text-center text-slate-400">جاري تحميل البلاغات من قاعدة البيانات...</div>
-                                ) : filteredReports.length === 0 ? (
-                                    <div className="p-12 text-center text-slate-400">لا توجد بلاغات مطابقة حالياً.</div>
-                                ) : (
-                                    <div className="overflow-x-auto">
-                                        <table className="w-full text-right border-collapse text-sm">
-                                            <thead>
-                                                <tr className="bg-slate-50 text-slate-400 border-b border-slate-100 text-xs">
-                                                    <th className="p-4">معرف البلاغ</th>
-                                                    <th className="p-4">اسم المستخدم</th>
-                                                    <th className="p-4">وسيلة الاتصال</th>
-                                                    <th className="p-4">التاريخ والوقت</th>
-                                                    <th className="p-4">الحالة</th>
-                                                    <th className="p-4">المرفقات</th>
-                                                    <th className="p-4 text-center">الإجراءات</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-100">
-                                                {filteredReports.map(rep => (
-                                                    <tr key={rep.id} className="hover:bg-slate-50/50 transition">
-                                                        <td className="p-4 font-mono text-xs text-slate-500">{rep.id.slice(0, 8)}...</td>
-                                                        <td className="p-4 font-bold text-slate-800">{rep.name}</td>
-                                                        <td className="p-4 text-slate-600 text-xs" dir="ltr">{rep.phone || rep.email || '-'}</td>
-                                                        <td className="p-4 text-slate-500 text-xs">{rep.createdAt?.toDate ? rep.createdAt.toDate().toLocaleString('ar-EG') : 'حديث'}</td>
-                                                        <td className="p-4">
-                                                            <span className={`px-3 py-1 rounded-full text-xs font-bold inline-block ${
-                                                                rep.status === 'new' ? 'bg-amber-100 text-amber-700' :
-                                                                rep.status === 'in_progress' ? 'bg-sky-100 text-sky-700' :
-                                                                rep.status === 'resolved' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'
-                                                            }`}>
-                                                                {rep.status === 'new' ? 'جديد' :
-                                                                 rep.status === 'in_progress' ? 'قيد المراجعة' :
-                                                                 rep.status === 'resolved' ? 'تم الحل' : 'مرفوض'}
-                                                            </span>
-                                                        </td>
-                                                        <td className="p-4 text-xs text-slate-500">
-                                                            {rep.userImage ? '👤 ' : ''}
-                                                            {rep.issueImage ? '🖼️ ' : ''}
-                                                            {!rep.userImage && !rep.issueImage ? 'لا يوجد' : ''}
-                                                        </td>
-                                                        <td className="p-4 text-center">
-                                                            <button onClick={() => setSelectedReport(rep)} className="bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition">
-                                                                عرض التفاصيل
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                )}
-                            </div>
-                        </main>
-                    </div>
-
-                    {/* Report Details Modal */}
-                    {selectedReport && (
-                        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                            <div className="bg-white rounded-3xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
-                                <div className="flex justify-between items-center mb-6 border-b pb-4">
-                                    <div>
-                                        <span className="text-xs font-mono text-sky-600 bg-sky-50 px-3 py-1 rounded-full">معرف: {selectedReport.id}</span>
-                                        <h3 className="text-xl font-black text-slate-800 mt-2">تفاصيل البلاغ</h3>
-                                    </div>
-                                    <button onClick={() => setSelectedReport(null)} className="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-                                </div>
-
-                                <div className="space-y-6 text-sm">
-                                    <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl">
-                                        <div>
-                                            <span className="text-xs text-slate-400 block mb-1">اسم المرسل</span>
-                                            <span className="font-bold text-slate-800">{selectedReport.name}</span>
-                                        </div>
-                                        <div>
-                                            <span className="text-xs text-slate-400 block mb-1">وسيلة الاتصال</span>
-                                            <span className="font-bold text-slate-800" dir="ltr">{selectedReport.phone || selectedReport.email || 'غير متوفر'}</span>
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <span className="text-xs text-slate-400 block mb-1">نص البلاغ / المشكلة</span>
-                                        <p className="bg-slate-50 p-4 rounded-2xl text-slate-700 leading-relaxed whitespace-pre-wrap">{selectedReport.description}</p>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div>
-                                            <span className="text-xs text-slate-400 block mb-2">صورة المستخدم</span>
-                                            {selectedReport.userImage ? (
-                                                <img src={selectedReport.userImage} alt="صورة المستخدم" className="w-24 h-24 object-cover rounded-xl border shadow-sm" />
-                                            ) : (
-                                                <span className="text-xs text-slate-400">لا توجد صورة مستخدم</span>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <span className="text-xs text-slate-400 block mb-2">صورة المشكلة</span>
-                                            {selectedReport.issueImage ? (
-                                                <img src={selectedReport.issueImage} alt="صورة المشكلة" className="w-24 h-24 object-cover rounded-xl border shadow-sm" />
-                                            ) : (
-                                                <span className="text-xs text-slate-400">لا توجد صورة للمشكلة</span>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-4 border-t flex flex-wrap gap-3 items-center justify-between">
-                                        <div className="flex gap-2">
-                                            <button onClick={() => updateStatus(selectedReport.id, 'in_progress')} className="bg-sky-50 text-sky-700 hover:bg-sky-100 px-3 py-2 rounded-xl text-xs font-bold transition">قيد المراجعة</button>
-                                            <button onClick={() => updateStatus(selectedReport.id, 'resolved')} className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-3 py-2 rounded-xl text-xs font-bold transition">تم الحل</button>
-                                            <button onClick={() => updateStatus(selectedReport.id, 'rejected')} className="bg-red-50 text-red-700 hover:bg-red-100 px-3 py-2 rounded-xl text-xs font-bold transition">رفض</button>
-                                        </div>
-                                        <button onClick={() => deleteReport(selectedReport.id)} className="text-red-500 hover:text-red-700 text-xs font-bold px-3 py-2">حذف البلاغ</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
+        function showAlert(msg, type) {
+            alertBox.className = `p-4 rounded-xl mb-6 text-sm font-semibold ${type === 'success' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-red-100 text-red-800 border border-red-300'}`;
+            alertBox.innerText = msg;
+            alertBox.classList.remove('hidden');
+            window.scrollTo({ top: 200, behavior: 'smooth' });
         }
-
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
     </script>
 </body>
 </html>
