@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - حلبسة Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col">
+
+    <!-- نموذج تسجيل دخول المسؤول -->
+    <div id="authScreen" class="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div class="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl shadow-2xl w-full max-w-md text-white">
+            <div class="text-center mb-8">
+                <div class="bg-cyan-500 text-slate-950 w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-xl font-bold mb-3">🛡️</div>
+                <h1 class="text-2xl font-bold text-cyan-400">لوحة تحكم حلبسة</h1>
+                <p class="text-slate-300 text-xs mt-1">تسجيل دخول المسؤولين المعتمدين</p>
+            </div>
+            <div id="loginError" class="hidden bg-red-500/20 border border-red-500 text-red-200 p-3 rounded-xl mb-4 text-xs text-center"></div>
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">البريد الإلكتروني</label>
+                    <input type="email" id="adminEmail" required class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400" placeholder="admin@halbasa.com">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">كلمة المرور</label>
+                    <input type="password" id="adminPassword" required class="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-400" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold py-3 rounded-xl shadow-lg hover:opacity-90 transition-all text-sm">
+                    تسجيل الدخول
+                </button>
+            </form>
+            <div class="mt-6 text-center">
+                <a href="/" class="text-xs text-slate-400 hover:text-cyan-400 transition-colors">← العودة إلى الموقع الرئيسي</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم الفعلية (تظهر بعد تسجيل الدخول) -->
+    <div id="dashboardScreen" class="hidden min-h-screen flex flex-col md:flex-row flex-1">
+        <!-- الشريط الجانبي -->
+        <aside class="w-full md:w-64 bg-slate-900 text-white flex flex-col justify-between p-6 shadow-xl">
+            <div>
+                <div class="flex items-center gap-3 mb-8">
+                    <div class="bg-cyan-500 text-slate-950 p-2 rounded-xl font-bold">📍</div>
+                    <h2 class="text-lg font-bold">حلبسة <span class="text-cyan-400 text-xs">Admin</span></h2>
+                </div>
+                <nav class="space-y-2 text-sm font-semibold">
+                    <button onclick="filterStatus('all')" id="btn-all" class="w-full text-right px-4 py-2.5 rounded-xl bg-blue-600 text-white transition-colors">جميع البلاغات</button>
+                    <button onclick="filterStatus('new')" id="btn-new" class="w-full text-right px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">البلاغات الجديدة</button>
+                    <button onclick="filterStatus('in_progress')" id="btn-in_progress" class="w-full text-right px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">قيد المراجعة</button>
+                    <button onclick="filterStatus('resolved')" id="btn-resolved" class="w-full text-right px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">تم الحل</button>
+                    <button onclick="filterStatus('rejected')" id="btn-rejected" class="w-full text-right px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors">مرفوضة</button>
+                </nav>
+            </div>
+            <div class="pt-6 border-t border-slate-800 space-y-3">
+                <a href="/" class="block text-center bg-slate-800 text-slate-300 hover:text-white py-2 rounded-xl text-xs font-bold transition-all">زيارة الموقع</a>
+                <button id="logoutBtn" class="w-full bg-red-500/20 text-red-400 hover:bg-red-600 hover:text-white transition-all py-2 rounded-xl font-bold text-xs">تسجيل الخروج</button>
+            </div>
+        </aside>
+
+        <!-- المحتوى الرئيسي للوحة -->
+        <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">إدارة البلاغات والشكاوى</h1>
+                    <p class="text-slate-500 text-xs">متابعة بلاغات المستخدمين لحظة بلحظة</p>
+                </div>
+                <input type="text" id="searchInput" placeholder="بحث بالاسم أو الهاتف..." class="w-full md:w-72 bg-white border border-slate-300 rounded-xl px-4 py-2 text-xs focus:outline-none focus:border-blue-600 shadow-sm">
+            </header>
+
+            <!-- الإحصائيات -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                    <span class="text-slate-500 text-xs font-bold">الإجمالي</span>
+                    <h3 id="statTotal" class="text-2xl font-black text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                    <span class="text-blue-600 text-xs font-bold">الجديدة</span>
+                    <h3 id="statNew" class="text-2xl font-black text-blue-600 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                    <span class="text-amber-600 text-xs font-bold">قيد المراجعة</span>
+                    <h3 id="statProgress" class="text-2xl font-black text-amber-600 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                    <span class="text-emerald-600 text-xs font-bold">تم الحل</span>
+                    <h3 id="statResolved" class="text-2xl font-black text-emerald-600 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 col-span-2 md:col-span-1">
+                    <span class="text-red-600 text-xs font-bold">مرفوضة</span>
+                    <h3 id="statRejected" class="text-2xl font-black text-red-600 mt-1">0</h3>
+                </div>
+            </div>
+
+            <!-- الجدول -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-right border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-bold">
+                                <th class="p-4">اسم المرسل</th>
+                                <th class="p-4">التواصل</th>
+                                <th class="p-4">تفاصيل البلاغ</th>
+                                <th class="p-4">الحالة</th>
+                                <th class="p-4">الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportsTableBody" class="divide-y divide-slate-100 text-xs">
+                            <tr><td colspan="5" class="p-8 text-center text-slate-400">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- نافذة تفاصيل البلاغ (Modal) -->
+    <div id="detailsModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 space-y-6">
+            <div class="flex justify-between items-center border-b pb-4">
+                <h3 id="modalTitle" class="text-lg font-bold text-slate-800">تفاصيل البلاغ</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">✕</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl text-xs">
+                <div><span class="font-bold text-slate-600">الاسم:</span> <span id="modalName"></span></div>
+                <div><span class="font-bold text-slate-600">الهاتف:</span> <span id="modalPhone"></span></div>
+                <div class="md:col-span-2"><span class="font-bold text-slate-600">البريد الإلكتروني:</span> <span id="modalEmail"></span></div>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-slate-700 mb-1 text-xs">نص المشكلة:</h4>
+                <p id="modalDesc" class="bg-slate-50 p-4 rounded-2xl text-slate-600 text-xs leading-relaxed border"></p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="modalImagesContainer">
+                <div id="userImgWrap" class="hidden">
+                    <h4 class="font-bold text-slate-700 mb-1 text-xs">صورة المستخدم:</h4>
+                    <img id="modalUserImg" class="rounded-xl border max-h-36 object-cover w-full">
+                </div>
+                <div id="issueImgWrap" class="hidden">
+                    <h4 class="font-bold text-slate-700 mb-1 text-xs">صورة المشكلة:</h4>
+                    <img id="modalIssueImg" class="rounded-xl border max-h-36 object-cover w-full">
+                </div>
+            </div>
+
+            <div class="border-t pt-4 flex flex-wrap gap-2 justify-between items-center">
+                <div class="flex gap-2">
+                    <button onclick="updateStatus('in_progress')" class="bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold">قيد المراجعة</button>
+                    <button onclick="updateStatus('resolved')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">تم الحل</button>
+                    <button onclick="updateStatus('rejected')" class="bg-red-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">رفض</button>
+                </div>
+                <button onclick="deleteCurrentReport()" class="bg-slate-100 text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-xl text-xs font-bold">حذف البلاغ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ربط السكربت الإداري -->
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
