@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -13,59 +12,20 @@ const firebaseConfig = {
     measurementId: "G-6VBEFTCHVG"
 };
 
+// تهيئة الفايربيز
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 const db = getFirestore(app);
 
 let allReports = [];
 let currentFilter = 'all';
 let currentReportId = null;
 
-const authScreen = document.getElementById('authScreen');
-const dashboardScreen = document.getElementById('dashboardScreen');
-const loginForm = document.getElementById('loginForm');
-const loginError = document.getElementById('loginError');
-
-// مراقبة المصادقة
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        authScreen.classList.add('hidden');
-        dashboardScreen.classList.remove('hidden');
-        fetchReports();
-    } else {
-        dashboardScreen.classList.add('hidden');
-        authScreen.classList.remove('hidden');
-    }
+// التشغيل الفوري عند فتح الصفحة بدون مصادقة أو تسجيل دخول
+document.addEventListener('DOMContentLoaded', () => {
+    fetchReports();
 });
 
-// تسجيل الدخول
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loginError.classList.add('hidden');
-    const email = document.getElementById('adminEmail').value.trim();
-    const password = document.getElementById('adminPassword').value;
-
-    try {
-        await signInWithEmailAndPassword(auth, email, password);
-    } catch (err) {
-        // Fallback تجريبي محلي للدخول السريع للاختبار إذا رغبت
-        if (email === "admin@halbasa.com" && password === "admin123456") {
-            authScreen.classList.add('hidden');
-            dashboardScreen.classList.remove('hidden');
-            fetchReports();
-            return;
-        }
-        loginError.innerText = "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
-        loginError.classList.remove('hidden');
-    }
-});
-
-// تسجيل الخروج
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await signOut(auth);
-});
-
-// جلب البلاغات
+// جلب البلاغات فوراً من قاعدة البيانات
 async function fetchReports() {
     try {
         const q = query(collection(db, "reports"), orderBy("createdAt", "desc"));
@@ -77,21 +37,24 @@ async function fetchReports() {
         renderDashboard();
     } catch (error) {
         console.error("خطأ في جلب البلاغات:", error);
+        document.getElementById('reportsTableBody').innerHTML = `
+            <tr><td colspan="5" class="p-8 text-center text-red-500 font-bold">تعذر الاتصال بقاعدة البيانات. تأكد من إعدادات الفايربيز.</td></tr>
+        `;
     }
 }
 
-// عرض وإحصاءات وتصفية
+// عرض البيانات وتصفيتها
 function renderDashboard() {
     const searchVal = document.getElementById('searchInput').value.toLowerCase();
 
-    // إحصائيات
+    // تحديث الإحصائيات
     document.getElementById('statTotal').innerText = allReports.length;
     document.getElementById('statNew').innerText = allReports.filter(r => r.status === 'new' || !r.status).length;
     document.getElementById('statProgress').innerText = allReports.filter(r => r.status === 'in_progress').length;
     document.getElementById('statResolved').innerText = allReports.filter(r => r.status === 'resolved').length;
     document.getElementById('statRejected').innerText = allReports.filter(r => r.status === 'rejected').length;
 
-    // تصفية
+    // تصفية البلاغات حسب البحث والحالة
     const filtered = allReports.filter(r => {
         const matchesStatus = currentFilter === 'all' || r.status === currentFilter;
         const matchesSearch = (r.name && r.name.toLowerCase().includes(searchVal)) || 
@@ -102,15 +65,15 @@ function renderDashboard() {
 
     const tbody = document.getElementById('reportsTableBody');
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">لا توجد بلاغات مطابقة.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-400">لا توجد بلاغات مطابقة حالياً.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = filtered.map(r => `
         <tr class="hover:bg-slate-50/80 transition-colors">
-            <td class="p-4 font-bold text-slate-800">${r.name}</td>
+            <td class="p-4 font-bold text-slate-800">${r.name || 'بدون اسم'}</td>
             <td class="p-4 text-slate-600">${r.phone || r.email || 'غير متوفر'}</td>
-            <td class="p-4 text-slate-600 truncate max-w-xs">${r.description}</td>
+            <td class="p-4 text-slate-600 truncate max-w-xs">${r.description || ''}</td>
             <td class="p-4">
                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${
                     r.status === 'resolved' ? 'bg-emerald-100 text-emerald-700' :
@@ -127,32 +90,33 @@ function renderDashboard() {
     `).join('');
 }
 
+// تغيير تصفية الحالة
 window.filterStatus = function(status) {
     currentFilter = status;
     ['all', 'new', 'in_progress', 'resolved', 'rejected'].forEach(s => {
         const btn = document.getElementById(`btn-${s}`);
-        if(s === status) {
+        if (s === status) {
             btn.className = "w-full text-right px-4 py-2.5 rounded-xl bg-blue-600 text-white transition-colors";
         } else {
             btn.className = "w-full text-right px-4 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors";
         }
     });
     renderDashboard();
-}
+};
 
 document.getElementById('searchInput').addEventListener('input', renderDashboard);
 
-// نافذة التفاصيل
+// فتح نافذة تفاصيل البلاغ
 window.openDetails = function(id) {
     const report = allReports.find(r => r.id === id);
     if (!report) return;
     currentReportId = id;
 
     document.getElementById('modalTitle').innerText = `تفاصيل البلاغ #${id.slice(0, 6)}`;
-    document.getElementById('modalName').innerText = report.name;
+    document.getElementById('modalName').innerText = report.name || 'بدون اسم';
     document.getElementById('modalPhone').innerText = report.phone || 'غير متوفر';
     document.getElementById('modalEmail').innerText = report.email || 'غير متوفر';
-    document.getElementById('modalDesc').innerText = report.description;
+    document.getElementById('modalDesc').innerText = report.description || '';
 
     const userImgWrap = document.getElementById('userImgWrap');
     const issueImgWrap = document.getElementById('issueImgWrap');
@@ -172,13 +136,14 @@ window.openDetails = function(id) {
     }
 
     document.getElementById('detailsModal').classList.remove('hidden');
-}
+};
 
 window.closeModal = function() {
     document.getElementById('detailsModal').classList.add('hidden');
     currentReportId = null;
-}
+};
 
+// تحديث حالة البلاغ مباشرة
 window.updateStatus = async function(newStatus) {
     if (!currentReportId) return;
     try {
@@ -189,8 +154,9 @@ window.updateStatus = async function(newStatus) {
     } catch (err) {
         alert("فشل تحديث حالة البلاغ.");
     }
-}
+};
 
+// حذف البلاغ نهائياً
 window.deleteCurrentReport = async function() {
     if (!currentReportId || !confirm("هل أنت متأكد من حذف هذا البلاغ نهائياً؟")) return;
     try {
@@ -201,4 +167,4 @@ window.deleteCurrentReport = async function() {
     } catch (err) {
         alert("فشل حذف البلاغ.");
     }
-}
+};
